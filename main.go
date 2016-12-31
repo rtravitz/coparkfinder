@@ -1,13 +1,33 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
-	"github.com/rtravitz/coparkfinder/seed"
+
+	_ "github.com/lib/pq"
+)
+
+const (
+	host   = "localhost"
+	port   = 5432
+	user   = "rtravitz"
+	dbname = "parkfinderdev"
 )
 
 func main() {
-	parks := seed.UnmarshalCSV()
-	for _, park := range parks {
-		fmt.Println(park)
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
+		"dbname=%s sslmode=disable",
+		host, port, user, dbname)
+
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		panic(err)
 	}
+	defer db.Close()
+	err = db.Ping()
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("Successfully connected!")
 }
