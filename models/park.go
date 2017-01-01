@@ -32,13 +32,10 @@ type Park struct {
 
 func InsertPark(park Park) (sql.Result, error) {
 	return db.DBCon.Exec(
-		fmt.Sprintf("INSERT INTO %s(%s, %s, %s, %s, %s, %s, %s) VALUES($1, $2, $3, $4, $5, $6, $7)", ParkTableName, ParkNameCol, ParkStreetCol, ParkCityCol, ParkZipCol, ParkEmailCol, ParkDescCol, ParkURLCol),
-		park.Name,
-		park.Street,
-		park.City,
-		park.Zip,
-		park.Email,
-		park.Description,
-		park.Url,
+		fmt.Sprintf("INSERT INTO %s(%s, %s, %s, %s, %s, %s, %s) VALUES($1, $2, $3, $4, $5, $6, $7)",
+			ParkTableName, ParkNameCol, ParkStreetCol, ParkCityCol, ParkZipCol,
+			ParkEmailCol, ParkDescCol, ParkURLCol),
+		park.Name, park.Street, park.City,
+		park.Zip, park.Email, park.Description, park.Url,
 	)
 }

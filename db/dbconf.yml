@@ -1,3 +1,7 @@
 development:
   driver: postgres
   open: user=rtravitz dbname=parkfinderdev sslmode=disable
+
+test:
+  driver: postgres
+  open: user=rtravitz dbname=parkfindertest sslmode=disable
