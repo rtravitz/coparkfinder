@@ -3,7 +3,6 @@ package models
 import (
 	"database/sql"
 	"fmt"
-	"github.com/rtravitz/coparkfinder/db"
 )
 
 const (
@@ -30,11 +29,12 @@ type Park struct {
 	Activity    string
 }
 
-func InsertPark(park Park) (sql.Result, error) {
-	return db.DBCon.Exec(
+func (tx *Tx) InsertPark(park Park) (sql.Result, error) {
+	return tx.Exec(
 		fmt.Sprintf("INSERT INTO %s(%s, %s, %s, %s, %s, %s, %s) VALUES($1, $2, $3, $4, $5, $6, $7)",
-			ParkTableName, ParkNameCol, ParkStreetCol, ParkCityCol, ParkZipCol,
-			ParkEmailCol, ParkDescCol, ParkURLCol),
+			ParkTableName, ParkNameCol, ParkStreetCol,
+			ParkCityCol, ParkZipCol, ParkEmailCol,
+			ParkDescCol, ParkURLCol),
 		park.Name, park.Street, park.City,
 		park.Zip, park.Email, park.Description, park.Url,
 	)

@@ -1,25 +1,26 @@
-package seed
+package models
 
 import (
 	"encoding/csv"
 	"fmt"
-	"github.com/rtravitz/coparkfinder/models"
 	"log"
 	"os"
 )
 
-func Seed() {
+func Seed(db *DB) {
 	parks := unmarshalCSV()
+	tx, _ := db.Begin()
 	for _, park := range parks {
-		result, err := models.InsertPark(park)
+		result, err := tx.InsertPark(park)
 		if err != nil {
 			log.Fatal(err)
 		}
 		fmt.Println(result)
 	}
+	tx.Commit()
 }
 
-func unmarshalCSV() []models.Park {
+func unmarshalCSV() []Park {
 	file, err := os.Open("data/park_finder3.csv")
 	if err != nil {
 		log.Fatal(err)
@@ -28,8 +29,8 @@ func unmarshalCSV() []models.Park {
 
 	r := csv.NewReader(file)
 	rawData, err := r.ReadAll()
-	var park models.Park
-	var parkList []models.Park
+	var park Park
+	var parkList []Park
 
 	for _, record := range rawData {
 		park.Name = record[0]
