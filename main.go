@@ -5,6 +5,8 @@ import (
 	"fmt"
 
 	_ "github.com/lib/pq"
+	"github.com/rtravitz/coparkfinder/db"
+	"github.com/rtravitz/coparkfinder/seed"
 )
 
 const (
@@ -19,15 +21,18 @@ func main() {
 		"dbname=%s sslmode=disable",
 		host, port, user, dbname)
 
-	db, err := sql.Open("postgres", psqlInfo)
+	var err error
+	db.DBCon, err = sql.Open("postgres", psqlInfo)
 	if err != nil {
 		panic(err)
 	}
-	defer db.Close()
-	err = db.Ping()
+	defer db.DBCon.Close()
+	err = db.DBCon.Ping()
 	if err != nil {
 		panic(err)
 	}
 
 	fmt.Println("Successfully connected!")
+
+	seed.Seed()
 }
