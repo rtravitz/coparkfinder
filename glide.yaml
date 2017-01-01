@@ -1,0 +1,3 @@
+package: github.com/rtravitz/coparkfinder
+import:
+- package: github.com/lib/pq

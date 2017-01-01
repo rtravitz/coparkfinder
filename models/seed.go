@@ -1,24 +1,26 @@
-package seed
+package models
 
 import (
 	"encoding/csv"
+	"fmt"
 	"log"
 	"os"
 )
 
-type Park struct {
-	Name        string
-	Street      string
-	City        string
-	Zip         string
-	Email       string
-	Description string
-	Url         string
-	Facility    string
-	Activity    string
+func Seed(db *DB) {
+	parks := unmarshalCSV()
+	tx, _ := db.Begin()
+	for _, park := range parks {
+		result, err := tx.InsertPark(park)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(result)
+	}
+	tx.Commit()
 }
 
-func UnmarshalCSV() []Park {
+func unmarshalCSV() []Park {
 	file, err := os.Open("data/park_finder3.csv")
 	if err != nil {
 		log.Fatal(err)

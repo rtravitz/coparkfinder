@@ -1,33 +1,44 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
+	"os"
+	"strconv"
 
-	_ "github.com/lib/pq"
-)
-
-const (
-	host   = "localhost"
-	port   = 5432
-	user   = "rtravitz"
-	dbname = "parkfinderdev"
+	"github.com/rtravitz/coparkfinder/models"
 )
 
 func main() {
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
-		"dbname=%s sslmode=disable",
-		host, port, user, dbname)
-
-	db, err := sql.Open("postgres", psqlInfo)
-	if err != nil {
-		panic(err)
-	}
+	db, err := models.OpenDB(dbinfo())
+	checkErr(err)
 	defer db.Close()
 	err = db.Ping()
+	checkErr(err)
+
+	fmt.Println("Successfully connected!")
+
+	models.Seed(db)
+}
+
+func checkErr(err error) {
 	if err != nil {
 		panic(err)
 	}
+}
 
-	fmt.Println("Successfully connected!")
+func dbinfo() string {
+	port, err := strconv.Atoi(os.Getenv("PARKFINDER_PORT"))
+	checkErr(err)
+	p := psqlInfo{host: os.Getenv("PARKFINDER_HOST"), port: port,
+		user: os.Getenv("PARKFINDER_USER"), dbname: os.Getenv("PARKFINDER_DBNAME")}
+	return fmt.Sprintf("host=%s port=%d user=%s "+
+		"dbname=%s sslmode=disable",
+		p.host, p.port, p.user, p.dbname)
+}
+
+type psqlInfo struct {
+	host   string
+	port   int
+	user   string
+	dbname string
 }
