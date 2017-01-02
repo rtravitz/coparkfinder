@@ -17,7 +17,7 @@ const (
 )
 
 type Park struct {
-	Id          int
+	ID          int
 	Name        string
 	Street      string
 	City        string
