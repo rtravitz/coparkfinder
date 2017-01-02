@@ -20,6 +20,21 @@ func TestAppendIfMissing(t *testing.T) {
 	equals(t, []string{"dogs", "cats", "pigs", "horses"}, testList)
 }
 
+func TestCompileFacilitiesList(t *testing.T) {
+	parks := []Park{
+		Park{facilityList: []string{"boathouse", "shelter"}},
+		Park{facilityList: []string{"dock", "boathouse"}},
+	}
+	facilities := compileFacilitiesList(parks)
+	expected := []Facility{
+		Facility{Type: "boathouse"},
+		Facility{Type: "shelter"},
+		Facility{Type: "dock"},
+	}
+
+	equals(t, expected, facilities)
+}
+
 func equals(tb testing.TB, exp, act interface{}) {
 	if !reflect.DeepEqual(exp, act) {
 		_, file, line, _ := runtime.Caller(1)
