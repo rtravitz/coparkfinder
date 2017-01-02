@@ -35,6 +35,14 @@ func TestCompileFacilitiesList(t *testing.T) {
 	equals(t, expected, facilities)
 }
 
+func TestSplitAndTrimList(t *testing.T) {
+	dirty := "boathouse, shelter, dock"
+	expected := []string{"boathouse", "shelter", "dock"}
+	cleaned := splitAndTrimList(dirty)
+
+	equals(t, expected, cleaned)
+}
+
 func equals(tb testing.TB, exp, act interface{}) {
 	if !reflect.DeepEqual(exp, act) {
 		_, file, line, _ := runtime.Caller(1)
