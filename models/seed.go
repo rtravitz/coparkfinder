@@ -48,8 +48,7 @@ func unmarshalCSV() []Park {
 		park.Email = record[4]
 		park.Description = record[5]
 		park.Url = record[6]
-		facilities := strings.Split(record[7], ",")
-		park.facilityList = facilities
+		park.facilityList = splitAndTrimList(record[7])
 		park.activityList = record[8]
 		parkList = append(parkList, park)
 	}
@@ -88,4 +87,13 @@ func appendIfMissing(current []string, toAdd string) []string {
 		}
 	}
 	return append(current, toAdd)
+}
+
+func splitAndTrimList(list string) (cleaned []string) {
+	split := strings.Split(list, ",")
+	for _, element := range split {
+		trimmed := strings.Trim(element, " ")
+		cleaned = append(cleaned, trimmed)
+	}
+	return
 }
