@@ -5,16 +5,24 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 )
 
 func Seed(db *DB) {
 	parks := unmarshalCSV()
+	facilities := compileFacilitiesList(parks)
 	tx, _ := db.Begin()
 	for _, park := range parks {
 		result, err := tx.InsertPark(park)
-		if err != nil {
-			log.Fatal(err)
-		}
+		checkErr(err)
+		fmt.Println(result)
+	}
+	tx.Commit()
+
+	tx, _ = db.Begin()
+	for _, facility := range facilities {
+		result, err := tx.InsertFacility(facility)
+		checkErr(err)
 		fmt.Println(result)
 	}
 	tx.Commit()
@@ -40,9 +48,44 @@ func unmarshalCSV() []Park {
 		park.Email = record[4]
 		park.Description = record[5]
 		park.Url = record[6]
-		park.Facility = record[7]
-		park.Activity = record[8]
+		facilities := strings.Split(record[7], ",")
+		park.facilityList = facilities
+		park.activityList = record[8]
 		parkList = append(parkList, park)
 	}
 	return parkList[1:]
+}
+
+func checkErr(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func compileFacilitiesList(parks []Park) []Facility {
+	var facilityTypes []string
+	var facilitiesList []Facility
+	var facility Facility
+
+	for _, park := range parks {
+		for _, facilityType := range park.facilityList {
+			facilityTypes = appendIfMissing(facilityTypes, facilityType)
+		}
+	}
+	fmt.Println(facilityTypes)
+
+	for _, facilityType := range facilityTypes {
+		facility.Type = facilityType
+		facilitiesList = append(facilitiesList, facility)
+	}
+	return facilitiesList
+}
+
+func appendIfMissing(current []string, toAdd string) []string {
+	for _, element := range current {
+		if element == toAdd {
+			return current
+		}
+	}
+	return append(current, toAdd)
 }
