@@ -17,16 +17,16 @@ const (
 )
 
 type Park struct {
-	ID          int
-	Name        string
-	Street      string
-	City        string
-	Zip         string
-	Email       string
-	Description string
-	Url         string
-	Facility    string
-	Activity    string
+	ID           int
+	Name         string
+	Street       string
+	City         string
+	Zip          string
+	Email        string
+	Description  string
+	Url          string
+	facilityList []string
+	activityList string
 }
 
 func (tx *Tx) InsertPark(park Park) (sql.Result, error) {
