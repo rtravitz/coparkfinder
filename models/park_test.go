@@ -35,7 +35,7 @@ func TestInsertPark(t *testing.T) {
 		panic(err)
 	}
 
-	equals(t, "Loveland", returnedCity)
+	equals(t, park.City, returnedCity)
 }
 
 func newTestPark() Park {

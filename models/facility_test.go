@@ -19,7 +19,7 @@ func TestInsertFacility(t *testing.T) {
 		panic(err)
 	}
 
-	equals(t, "boathouse", facility.Type)
+	equals(t, facility.Type, returnedType)
 }
 
 func newTestFacility() Facility {
