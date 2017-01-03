@@ -59,7 +59,7 @@ func newTestPark() Park {
 		Zip:         "80538",
 		Email:       "boyd.lake@state.co.us",
 		Description: "Colorful sailboats skimming blue water.",
-		Url:         "http://cpw.state.co.us/placestogo/parks/BoydLake",
+		URL:         "http://cpw.state.co.us/placestogo/parks/BoydLake",
 	}
 }
 

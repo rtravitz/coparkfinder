@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+//Seed fills the database with data imported from a CSV of parks information
 func Seed(db *DB) {
 	parks := unmarshalCSV()
 	facilities := compileFacilitiesList(parks)
@@ -47,7 +48,7 @@ func unmarshalCSV() []Park {
 		park.Zip = record[3]
 		park.Email = record[4]
 		park.Description = record[5]
-		park.Url = record[6]
+		park.URL = record[6]
 		park.facilityList = splitAndTrimList(record[7])
 		park.activityList = record[8]
 		parkList = append(parkList, park)
