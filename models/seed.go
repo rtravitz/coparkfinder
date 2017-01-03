@@ -27,6 +27,20 @@ func Seed(db *DB) {
 		fmt.Println(result)
 	}
 	tx.Commit()
+
+	tx, _ = db.Begin()
+	for _, park := range parks {
+		dbPark, err := tx.FindPark("name = $1", park.Name)
+		checkErr(err)
+		for _, facility := range park.facilityList {
+			dbFacility, err := tx.FindFacility("type = $1", facility)
+			checkErr(err)
+			parkFacility := ParkFacility{ParkID: dbPark.ID, FacilityID: dbFacility.ID}
+			tx.InsertParkFacility(parkFacility)
+		}
+	}
+
+	tx.Commit()
 }
 
 func unmarshalCSV() []Park {
