@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+//Seed fills the database with data imported from a CSV of parks information
 func Seed(db *DB) {
 	parks := unmarshalCSV()
 	facilities := compileFacilitiesList(parks)
@@ -25,6 +26,20 @@ func Seed(db *DB) {
 		checkErr(err)
 		fmt.Println(result)
 	}
+	tx.Commit()
+
+	tx, _ = db.Begin()
+	for _, park := range parks {
+		dbPark, err := tx.FindPark("name = $1", park.Name)
+		checkErr(err)
+		for _, facility := range park.facilityList {
+			dbFacility, err := tx.FindFacility("type = $1", facility)
+			checkErr(err)
+			parkFacility := ParkFacility{ParkID: dbPark.ID, FacilityID: dbFacility.ID}
+			tx.InsertParkFacility(parkFacility)
+		}
+	}
+
 	tx.Commit()
 }
 
@@ -47,7 +62,7 @@ func unmarshalCSV() []Park {
 		park.Zip = record[3]
 		park.Email = record[4]
 		park.Description = record[5]
-		park.Url = record[6]
+		park.URL = record[6]
 		park.facilityList = splitAndTrimList(record[7])
 		park.activityList = record[8]
 		parkList = append(parkList, park)
@@ -71,7 +86,6 @@ func compileFacilitiesList(parks []Park) []Facility {
 			facilityTypes = appendIfMissing(facilityTypes, facilityType)
 		}
 	}
-	fmt.Println(facilityTypes)
 
 	for _, facilityType := range facilityTypes {
 		facility.Type = facilityType
