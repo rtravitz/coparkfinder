@@ -28,6 +28,8 @@ func TestFindFacility(t *testing.T) {
 	defer tearDown("facilities", "id IN ($1, $2)", ids[0], ids[1])
 	tx, err := tdb.Begin()
 	facility, err := tx.FindFacility("type = $1", "boathouse")
+	tx.Commit()
+	ok(t, err)
 
 	equals(t, "boathouse", facility.Type)
 }

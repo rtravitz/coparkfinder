@@ -25,6 +25,7 @@ func (tx *Tx) InsertFacility(facility Facility) (sql.Result, error) {
 	)
 }
 
+//Finds and returns a single Facility matching the params from the database
 func (tx *Tx) FindFacility(where string, params ...interface{}) (*Facility, error) {
 	facility := new(Facility)
 	row := tx.QueryRow(fmt.Sprintf("SELECT * FROM facilities WHERE %s", where), params...)

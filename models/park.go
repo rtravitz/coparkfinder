@@ -62,3 +62,14 @@ func (tx *Tx) AllParks() ([]*Park, error) {
 	}
 	return parks, nil
 }
+
+func (tx *Tx) FindPark(where string, params ...interface{}) (*Park, error) {
+	park := new(Park)
+	row := tx.QueryRow(fmt.Sprintf("SELECT * FROM parks WHERE %s", where), params...)
+	err := row.Scan(&park.ID, &park.Name, &park.Street, &park.City,
+		&park.Zip, &park.Email, &park.Description, &park.URL)
+	if err != nil {
+		return nil, err
+	}
+	return park, nil
+}

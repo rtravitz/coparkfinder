@@ -35,6 +35,18 @@ func TestAllParks(t *testing.T) {
 	equals(t, 2, len(parks))
 }
 
+func TestFindPark(t *testing.T) {
+	ids, err := insertTestParks()
+	checkErr(err)
+	defer tearDown("parks", "id IN ($1, $2)", ids[0], ids[1])
+	tx, err := tdb.Begin()
+	park, err := tx.FindPark("name = $1", "Boyd Lake")
+	tx.Commit()
+	ok(t, err)
+
+	equals(t, "Boyd Lake", park.Name)
+}
+
 func newTestPark() Park {
 	return Park{
 		Name:        "Boyd Lake",
