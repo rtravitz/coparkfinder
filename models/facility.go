@@ -24,3 +24,13 @@ func (tx *Tx) InsertFacility(facility Facility) (sql.Result, error) {
 		facility.Type,
 	)
 }
+
+func (tx *Tx) FindFacility(where string, params ...interface{}) (*Facility, error) {
+	facility := new(Facility)
+	row := tx.QueryRow(fmt.Sprintf("SELECT * FROM facilities WHERE %s", where), params...)
+	err := row.Scan(&facility.ID, &facility.Type)
+	if err != nil {
+		return nil, err
+	}
+	return facility, nil
+}
