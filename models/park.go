@@ -39,3 +39,22 @@ func (tx *Tx) InsertPark(park Park) (sql.Result, error) {
 		park.Zip, park.Email, park.Description, park.Url,
 	)
 }
+
+func (tx *Tx) AllParks() ([]*Park, error) {
+	rows, err := tx.Query("SELECT * FROM parks")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	parks := make([]*Park, 0)
+	for rows.Next() {
+		park := new(Park)
+		err := rows.Scan(&park.ID, &park.Name, &park.Street, &park.City,
+			&park.Zip, &park.Email, &park.Description, &park.Url)
+		if err != nil {
+			return nil, err
+		}
+		parks = append(parks, park)
+	}
+	return parks, nil
+}

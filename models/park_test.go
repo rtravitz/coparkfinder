@@ -38,6 +38,19 @@ func TestInsertPark(t *testing.T) {
 	equals(t, park.City, returnedCity)
 }
 
+func TestAllParks(t *testing.T) {
+	ids, err := insertTestParks()
+	checkErr(err)
+	defer tearDown("parks", "id IN ($1, $2)", ids[0], ids[1])
+	tx, err := tdb.Begin()
+	parks, err := tx.AllParks()
+	tx.Commit()
+	ok(t, err)
+
+	equals(t, "Boyd Lake", parks[1].Name)
+	equals(t, 2, len(parks))
+}
+
 func newTestPark() Park {
 	return Park{
 		Name:        "Boyd Lake",
@@ -48,6 +61,37 @@ func newTestPark() Park {
 		Description: "Colorful sailboats skimming blue water.",
 		Url:         "http://cpw.state.co.us/placestogo/parks/BoydLake",
 	}
+}
+
+func checkErr(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
+func insertTestParks() (teardownIDs []int, err error) {
+	tx, err := tdb.Begin()
+	park1 := newTestPark()
+	park2 := newTestPark()
+	parkList := []Park{park1, park2}
+	for _, park := range parkList {
+		_, err = tx.InsertPark(park)
+	}
+	tx.Commit()
+	rows, err := tdb.Query("SELECT id FROM parks")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var id int
+		err = rows.Scan(&id)
+		if err != nil {
+			return nil, err
+		}
+		teardownIDs = append(teardownIDs, id)
+	}
+	return teardownIDs, nil
 }
 
 func tearDown(table, where string, params ...interface{}) {
