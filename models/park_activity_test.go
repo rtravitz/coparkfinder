@@ -25,6 +25,6 @@ func TestInsertParkActivity(t *testing.T) {
 	equals(t, parkActivity.ActivityID, returnedActivityID)
 }
 
-func newParkActivity() ParkFacility {
-	return ParkActivity{ParkID: 1, FacilityID: 1}
+func newParkActivity() ParkActivity {
+	return ParkActivity{ParkID: 1, ActivityID: 1}
 }
