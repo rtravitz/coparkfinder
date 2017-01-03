@@ -24,3 +24,14 @@ func (tx *Tx) InsertActivity(activity Activity) (sql.Result, error) {
 		activity.Type,
 	)
 }
+
+//Finds and returns a single Activity matching the params from the database
+func (tx *Tx) FindActivity(where string, params ...interface{}) (*Activity, error) {
+	activity := new(Activity)
+	row := tx.QueryRow(fmt.Sprintf("SELECT * FROM activities WHERE %s", where), params...)
+	err := row.Scan(&activity.ID, &activity.Type)
+	if err != nil {
+		return nil, err
+	}
+	return activity, nil
+}
