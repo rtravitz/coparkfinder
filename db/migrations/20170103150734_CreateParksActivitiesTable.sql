@@ -11,5 +11,5 @@ CREATE Table parks_activities (
 
 -- +goose Down
 -- SQL section 'Down' is executed when this migration is rolled back
-DROP TABLE activities_facilities;
+DROP TABLE parks_activities;
 
