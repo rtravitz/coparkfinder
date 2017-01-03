@@ -71,7 +71,6 @@ func compileFacilitiesList(parks []Park) []Facility {
 			facilityTypes = appendIfMissing(facilityTypes, facilityType)
 		}
 	}
-	fmt.Println(facilityTypes)
 
 	for _, facilityType := range facilityTypes {
 		facility.Type = facilityType
