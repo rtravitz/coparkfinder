@@ -9,7 +9,7 @@ func TestInsertActivity(t *testing.T) {
 	tx, err := tdb.Begin()
 	activity := newTestActivity()
 	defer tearDown("activities", "type = $1", activity.Type)
-	_, err := tx.InsertActivity(activity)
+	_, err = tx.InsertActivity(activity)
 	tx.Commit()
 	ok(t, err)
 	row := tdb.QueryRow("SELECT type FROM activities WHERE type = $1", activity.Type)
