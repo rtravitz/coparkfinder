@@ -1,14 +1,14 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
 
+	"github.com/gorilla/mux"
+	"github.com/rtravitz/coparkfinder/handlers"
 	"github.com/rtravitz/coparkfinder/models"
 )
 
@@ -21,19 +21,9 @@ func main() {
 	seedIfEmpty(db)
 
 	r := mux.NewRouter()
-	r.HandleFunc("/api/v1/parks", ParksIndex(db))
+	r.HandleFunc("/api/v1/parks", handlers.ParksIndex(db)).
+		Methods("GET")
 	log.Fatal(http.ListenAndServe(":8080", r))
-}
-
-func ParksIndex(db *models.DB) http.HandlerFunc {
-	fn := func(w http.ResponseWriter, r *http.Request) {
-		tx, err := db.Begin()
-		parks, err := tx.AllParks()
-		tx.Commit()
-		checkErr(err)
-		json.NewEncoder(w).Encode(parks)
-	}
-	return http.HandlerFunc(fn)
 }
 
 func checkErr(err error) {
