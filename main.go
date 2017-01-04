@@ -14,15 +14,24 @@ func main() {
 	defer db.Close()
 	err = db.Ping()
 	checkErr(err)
+	seedIfEmpty(db)
 
 	fmt.Println("Successfully connected!")
-
-	models.Seed(db)
 }
 
 func checkErr(err error) {
 	if err != nil {
 		panic(err)
+	}
+}
+
+func seedIfEmpty(db *models.DB) {
+	tx, err := db.Begin()
+	parks, err := tx.AllParks()
+	checkErr(err)
+	tx.Commit()
+	if len(parks) == 0 {
+		models.Seed(db)
 	}
 }
 
