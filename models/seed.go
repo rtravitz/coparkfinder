@@ -2,7 +2,6 @@ package models
 
 import (
 	"encoding/csv"
-	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -17,27 +16,24 @@ func Seed(db *DB) {
 	//insert parks
 	tx, _ := db.Begin()
 	for _, park := range parks {
-		result, err := tx.InsertPark(park)
+		_, err := tx.InsertPark(park)
 		checkErr(err)
-		fmt.Println(result)
 	}
 	tx.Commit()
 
 	//insert facilities
 	tx, _ = db.Begin()
 	for _, facility := range facilities {
-		result, err := tx.InsertFacility(facility)
+		_, err := tx.InsertFacility(facility)
 		checkErr(err)
-		fmt.Println(result)
 	}
 	tx.Commit()
 
 	//insert activities
 	tx, _ = db.Begin()
 	for _, activity := range activities {
-		result, err := tx.InsertActivity(activity)
+		_, err := tx.InsertActivity(activity)
 		checkErr(err)
-		fmt.Println(result)
 	}
 	tx.Commit()
 

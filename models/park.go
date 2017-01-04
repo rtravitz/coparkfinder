@@ -19,17 +19,19 @@ const (
 
 //Park is a representation of the parks table in the database
 type Park struct {
-	ID           int
-	Name         string
-	Street       string
-	City         string
-	Zip          string
-	Email        string
-	Description  string
-	URL          string
+	ID           int    `json:"id"`
+	Name         string `json:"name"`
+	Street       string `json:"street"`
+	City         string `json:"city"`
+	Zip          string `json:"zip"`
+	Email        string `json:"email"`
+	Description  string `json:"description"`
+	URL          string `json:"url"`
 	facilityList []string
 	activityList []string
 }
+
+type Parks []Park
 
 //InsertPark inserts a Park into the database
 func (tx *Tx) InsertPark(park Park) (sql.Result, error) {
