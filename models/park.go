@@ -28,7 +28,7 @@ type Park struct {
 	Description  string
 	URL          string
 	facilityList []string
-	activityList string
+	activityList []string
 }
 
 //InsertPark inserts a Park into the database

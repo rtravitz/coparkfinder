@@ -12,6 +12,9 @@ import (
 func Seed(db *DB) {
 	parks := unmarshalCSV()
 	facilities := compileFacilitiesList(parks)
+	activities := compileActivitiesList(parks)
+
+	//insert parks
 	tx, _ := db.Begin()
 	for _, park := range parks {
 		result, err := tx.InsertPark(park)
@@ -20,9 +23,19 @@ func Seed(db *DB) {
 	}
 	tx.Commit()
 
+	//insert facilities
 	tx, _ = db.Begin()
 	for _, facility := range facilities {
 		result, err := tx.InsertFacility(facility)
+		checkErr(err)
+		fmt.Println(result)
+	}
+	tx.Commit()
+
+	//insert activities
+	tx, _ = db.Begin()
+	for _, activity := range activities {
+		result, err := tx.InsertActivity(activity)
 		checkErr(err)
 		fmt.Println(result)
 	}
@@ -38,8 +51,13 @@ func Seed(db *DB) {
 			parkFacility := ParkFacility{ParkID: dbPark.ID, FacilityID: dbFacility.ID}
 			tx.InsertParkFacility(parkFacility)
 		}
+		for _, activity := range park.activityList {
+			dbActivity, err := tx.FindActivity("type = $1", activity)
+			checkErr(err)
+			parkActivity := ParkActivity{ParkID: dbPark.ID, ActivityID: dbActivity.ID}
+			tx.InsertParkActivity(parkActivity)
+		}
 	}
-
 	tx.Commit()
 }
 
@@ -64,7 +82,7 @@ func unmarshalCSV() []Park {
 		park.Description = record[5]
 		park.URL = record[6]
 		park.facilityList = splitAndTrimList(record[7])
-		park.activityList = record[8]
+		park.activityList = splitAndTrimList(record[8])
 		parkList = append(parkList, park)
 	}
 	return parkList[1:]
@@ -92,6 +110,24 @@ func compileFacilitiesList(parks []Park) []Facility {
 		facilitiesList = append(facilitiesList, facility)
 	}
 	return facilitiesList
+}
+
+func compileActivitiesList(parks []Park) []Activity {
+	var activityTypes []string
+	var activitiesList []Activity
+	var activity Activity
+
+	for _, park := range parks {
+		for _, activityType := range park.activityList {
+			activityTypes = appendIfMissing(activityTypes, activityType)
+		}
+	}
+
+	for _, activityType := range activityTypes {
+		activity.Type = activityType
+		activitiesList = append(activitiesList, activity)
+	}
+	return activitiesList
 }
 
 func appendIfMissing(current []string, toAdd string) []string {
