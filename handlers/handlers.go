@@ -12,6 +12,7 @@ func ParksIndex(db *models.DB) http.HandlerFunc {
 		parks, err := tx.AllParks()
 		tx.Commit()
 		checkErr(err)
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		json.NewEncoder(w).Encode(parks)
 	}
 	return http.HandlerFunc(fn)
