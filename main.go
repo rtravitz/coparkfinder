@@ -11,6 +11,7 @@ import (
 )
 
 func main() {
+	port := os.Getenv("PORT")
 	dbAddress := os.Getenv("PARKFINDER_DB")
 	db, err := models.OpenDB(dbAddress)
 	checkErr(err)
@@ -22,7 +23,7 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/api/v1/parks", handlers.ParksIndex(db)).
 		Methods("GET")
-	log.Fatal(http.ListenAndServe(":8080", r))
+	log.Fatal(http.ListenAndServe(":"+port, r))
 }
 
 func checkErr(err error) {
