@@ -1,11 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/rtravitz/coparkfinder/handlers"
@@ -13,7 +11,8 @@ import (
 )
 
 func main() {
-	db, err := models.OpenDB(dbinfo())
+	dbAddress := os.Getenv("PARKFINDER_DB")
+	db, err := models.OpenDB(dbAddress)
 	checkErr(err)
 	defer db.Close()
 	err = db.Ping()
@@ -40,21 +39,4 @@ func seedIfEmpty(db *models.DB) {
 	if len(parks) == 0 {
 		models.Seed(db)
 	}
-}
-
-func dbinfo() string {
-	port, err := strconv.Atoi(os.Getenv("PARKFINDER_PORT"))
-	checkErr(err)
-	p := psqlInfo{host: os.Getenv("PARKFINDER_HOST"), port: port,
-		user: os.Getenv("PARKFINDER_USER"), dbname: os.Getenv("PARKFINDER_DBNAME")}
-	return fmt.Sprintf("host=%s port=%d user=%s "+
-		"dbname=%s sslmode=disable",
-		p.host, p.port, p.user, p.dbname)
-}
-
-type psqlInfo struct {
-	host   string
-	port   int
-	user   string
-	dbname string
 }
