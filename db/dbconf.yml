@@ -5,3 +5,7 @@ development:
 test:
   driver: postgres
   open: user=rtravitz dbname=parkfindertest sslmode=disable
+
+production:
+  driver: postgres
+  open: $DATABASE_URL
