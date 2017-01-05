@@ -1,35 +1,12 @@
 hash: 6371e41bd6f44b882d4c8cc32f4000d3e541ddcb9ed4947f53bb44ef5c3343d9
-updated: 2017-01-04T17:03:11.876439882-07:00
+updated: 2017-01-04T18:40:32.92053053-07:00
 imports:
-- name: bitbucket.org/liamstask/goose
-  version: 8488cc47d90c8a502b1c41a462a6d9cc8ee0a895
-  subpackages:
-  - cmd/goose
-  - lib/goose
-- name: github.com/go-sql-driver/mysql
-  version: 2e00b5cd70399450106cec6431c2e2ce3cae5034
 - name: github.com/gorilla/context
   version: 08b5f424b9271eedf6f9f0ce86cb9396ed337a42
 - name: github.com/gorilla/mux
   version: 757bef944d0f21880861c2dd9c871ca543023cba
-- name: github.com/kylelemons/go-gypsy
-  version: 08cad365cd28a7fba23bb1e57aa43c5e18ad8bb8
-  subpackages:
-  - yaml
 - name: github.com/lib/pq
   version: 22cb3e4c487ce6242e2b03369219e5631eed1221
   subpackages:
   - oid
-- name: github.com/mattn/go-sqlite3
-  version: 6f2749a3ca9b233ffb8749ef9684f7f4d88cee7a
-- name: github.com/ziutek/mymysql
-  version: 501176fc99be4b4fb0fd01ae8d6af5d8bb408e44
-  subpackages:
-  - godrv
-  - mysql
-  - native
-- name: golang.org/x/net
-  version: 69d4b8aa71caaaa75c3dfc11211d1be495abec7c
-  subpackages:
-  - context
 testImports: []
