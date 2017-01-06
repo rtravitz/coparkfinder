@@ -30,8 +30,14 @@ func (h *Handler) NewRouter() http.Handler {
 }
 
 func (h *Handler) ParksIndex(w http.ResponseWriter, r *http.Request) {
+	var parks []*models.Park
+	params := r.URL.Query()
 	tx, err := h.DB.Begin()
-	parks, err := tx.AllParks()
+	if len(params) > 0 {
+		parks, err = tx.FindParks(params)
+	} else {
+		parks, err = tx.AllParks()
+	}
 	tx.Commit()
 	checkErr(err)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")

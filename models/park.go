@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 )
 
 //Name of the parks table and associated columns in the database
@@ -74,4 +75,44 @@ func (tx *Tx) FindPark(where string, params ...interface{}) (*Park, error) {
 		return nil, err
 	}
 	return park, nil
+}
+
+func (tx *Tx) FindParks(params map[string][]string) ([]*Park, error) {
+	facilitiesList := params["facilities"][0]
+	facilitiesLen := len(strings.Split(facilitiesList, ","))
+	activitiesList := params["activities"][0]
+	activitiesLen := len(strings.Split(activitiesList, ","))
+
+	rows, err := tx.Query(fmt.Sprintf(
+		`SELECT * FROM parks WHERE parks.id =
+		 (SELECT fac.id FROM
+		    (SELECT parks.id AS id FROM parks
+		      JOIN parks_facilities ON parks.id = parks_facilities.park_id
+		      JOIN facilities ON parks_facilities.facility_id = facilities.id
+		      WHERE facilities.type IN (%s)
+		      GROUP BY parks.id
+		      HAVING COUNT(*) = %d) AS fac,
+		    (SELECT parks.id AS id FROM parks
+		      JOIN parks_activities ON parks.id = parks_activities.park_id
+		      JOIN activities ON parks_activities.activity_id = activities.id
+		      WHERE activities.type IN (%s)
+		      GROUP BY parks.id
+		      HAVING COUNT(*) = %d) as act
+		  WHERE fac.id = act.id);`,
+			facilitiesList, facilitiesLen, activitiesList, activitiesLen))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	parks := make([]*Park, 0)
+	for rows.Next() {
+		park := new(Park)
+		err := rows.Scan(&park.ID, &park.Name, &park.Street, &park.City,
+			&park.Zip, &park.Email, &park.Description, &park.URL)
+		if err != nil {
+			return nil, err
+		}
+		parks = append(parks, park)
+	}
+	return parks, nil
 }
