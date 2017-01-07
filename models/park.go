@@ -28,6 +28,8 @@ type Park struct {
 	Email        string `json:"email"`
 	Description  string `json:"description"`
 	URL          string `json:"url"`
+	Facilities   []Facility
+	Activities   []Activity
 	facilityList []string
 	activityList []string
 }
@@ -52,6 +54,10 @@ func (tx *Tx) AllParks() ([]*Park, error) {
 	if err != nil {
 		return nil, err
 	}
+	return generateParks(rows)
+}
+
+func generateParks(rows *sql.Rows) ([]*Park, error) {
 	defer rows.Close()
 	parks := make([]*Park, 0)
 	for rows.Next() {
@@ -82,18 +88,7 @@ func (tx *Tx) FindParks(params map[string][]string) ([]*Park, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
-	parks := make([]*Park, 0)
-	for rows.Next() {
-		park := new(Park)
-		err := rows.Scan(&park.ID, &park.Name, &park.Street, &park.City,
-			&park.Zip, &park.Email, &park.Description, &park.URL)
-		if err != nil {
-			return nil, err
-		}
-		parks = append(parks, park)
-	}
-	return parks, nil
+	return generateParks(rows)
 }
 
 func queryDecision(params map[string][]string) string {
