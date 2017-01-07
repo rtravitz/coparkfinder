@@ -13,8 +13,8 @@ const (
 
 //Facility is a representation of the facilities table in the database
 type Facility struct {
-	ID   int
-	Type string
+	ID   int    `json:"id"`
+	Type string `json:"type"`
 }
 
 //InsertFacility inserts a Facility into the database

@@ -29,7 +29,7 @@ type Park struct {
 	Description  string      `json:"description"`
 	URL          string      `json:"url"`
 	Facilities   []*Facility `json:"facilities"`
-	Activities   []Activity  `json:"activities"`
+	Activities   []*Activity `json:"activities"`
 	facilityList []string
 	activityList []string
 }

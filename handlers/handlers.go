@@ -42,6 +42,7 @@ func (h *Handler) ParksIndex(w http.ResponseWriter, r *http.Request) {
 	checkErr(err)
 	for _, park := range parks {
 		park.Facilities, err = park.FindParkFacilities(h.DB)
+		park.Activities, err = park.FindParkActivities(h.DB)
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
