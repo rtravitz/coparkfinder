@@ -3,7 +3,6 @@ package models
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"strings"
 )
 
@@ -111,8 +110,6 @@ func queryDecision(params map[string][]string) string {
 		actList = activities[0]
 		actLen = len(strings.Split(actList, ","))
 	}
-	log.Print(facOK)
-	log.Print(len(params) == 2)
 
 	if len(params) == 2 {
 		return allParamsQuery(facList, actList, facLen, actLen)
@@ -166,6 +163,5 @@ func facilitiesQuery(facs string, facLen int) (query string) {
 		GROUP BY parks.id
 		HAVING COUNT(*) = %d;`,
 		facs, facLen)
-	log.Print(query)
 	return
 }
