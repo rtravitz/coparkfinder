@@ -41,7 +41,7 @@ func (h *Handler) ActivitiesIndex(w http.ResponseWriter, r *http.Request) {
 	checkErr(err)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
-	if err = json.NewEncoder(w).Encode(activities); err != nil {
+	if err = json.NewEncoder(w).Encode(&activities); err != nil {
 		panic(err)
 	}
 }
@@ -54,7 +54,7 @@ func (h *Handler) FacilitiesIndex(w http.ResponseWriter, r *http.Request) {
 	checkErr(err)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
-	if err = json.NewEncoder(w).Encode(facilities); err != nil {
+	if err = json.NewEncoder(w).Encode(&facilities); err != nil {
 		panic(err)
 	}
 }
@@ -76,7 +76,7 @@ func (h *Handler) ParksIndex(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
-	if err = json.NewEncoder(w).Encode(parks); err != nil {
+	if err = json.NewEncoder(w).Encode(&parks); err != nil {
 		panic(err)
 	}
 }
