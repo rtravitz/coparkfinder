@@ -20,14 +20,16 @@ const (
 
 //Park is a representation of the parks table in the database
 type Park struct {
-	ID           int    `json:"id"`
-	Name         string `json:"name"`
-	Street       string `json:"street"`
-	City         string `json:"city"`
-	Zip          string `json:"zip"`
-	Email        string `json:"email"`
-	Description  string `json:"description"`
-	URL          string `json:"url"`
+	ID           int         `json:"id"`
+	Name         string      `json:"name"`
+	Street       string      `json:"street"`
+	City         string      `json:"city"`
+	Zip          string      `json:"zip"`
+	Email        string      `json:"email"`
+	Description  string      `json:"description"`
+	URL          string      `json:"url"`
+	Facilities   []*Facility `json:"facilities"`
+	Activities   []*Activity `json:"activities"`
 	facilityList []string
 	activityList []string
 }
@@ -52,18 +54,7 @@ func (tx *Tx) AllParks() ([]*Park, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
-	parks := make([]*Park, 0)
-	for rows.Next() {
-		park := new(Park)
-		err := rows.Scan(&park.ID, &park.Name, &park.Street, &park.City,
-			&park.Zip, &park.Email, &park.Description, &park.URL)
-		if err != nil {
-			return nil, err
-		}
-		parks = append(parks, park)
-	}
-	return parks, nil
+	return generateParks(rows)
 }
 
 func (tx *Tx) FindPark(where string, params ...interface{}) (*Park, error) {
@@ -82,18 +73,7 @@ func (tx *Tx) FindParks(params map[string][]string) ([]*Park, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
-	parks := make([]*Park, 0)
-	for rows.Next() {
-		park := new(Park)
-		err := rows.Scan(&park.ID, &park.Name, &park.Street, &park.City,
-			&park.Zip, &park.Email, &park.Description, &park.URL)
-		if err != nil {
-			return nil, err
-		}
-		parks = append(parks, park)
-	}
-	return parks, nil
+	return generateParks(rows)
 }
 
 func queryDecision(params map[string][]string) string {
@@ -119,6 +99,21 @@ func queryDecision(params map[string][]string) string {
 	} else {
 		return activitiesQuery(actList, actLen)
 	}
+}
+
+func generateParks(rows *sql.Rows) ([]*Park, error) {
+	defer rows.Close()
+	parks := make([]*Park, 0)
+	for rows.Next() {
+		park := new(Park)
+		err := rows.Scan(&park.ID, &park.Name, &park.Street, &park.City,
+			&park.Zip, &park.Email, &park.Description, &park.URL)
+		if err != nil {
+			return nil, err
+		}
+		parks = append(parks, park)
+	}
+	return parks, nil
 }
 
 func allParamsQuery(facs string, acts string, facLen int, actLen int) (query string) {

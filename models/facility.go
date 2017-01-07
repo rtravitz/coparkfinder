@@ -13,8 +13,8 @@ const (
 
 //Facility is a representation of the facilities table in the database
 type Facility struct {
-	ID   int
-	Type string
+	ID   int    `json:"id"`
+	Type string `json:"type"`
 }
 
 //InsertFacility inserts a Facility into the database
@@ -34,4 +34,31 @@ func (tx *Tx) FindFacility(where string, params ...interface{}) (*Facility, erro
 		return nil, err
 	}
 	return facility, nil
+}
+
+//Finds all facilities based on a Park ID
+func (park *Park) FindParkFacilities(db *DB) ([]*Facility, error) {
+	query := fmt.Sprintf(`SELECT facilities.* FROM facilities
+		JOIN parks_facilities ON facilities.id = parks_facilities.facility_id
+		JOIN parks ON parks_facilities.park_id = parks.id
+		WHERE parks.id = %d`, park.ID)
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	return generateFacilities(rows)
+}
+
+func generateFacilities(rows *sql.Rows) ([]*Facility, error) {
+	defer rows.Close()
+	facilities := make([]*Facility, 0)
+	for rows.Next() {
+		facility := new(Facility)
+		err := rows.Scan(&facility.ID, &facility.Type)
+		if err != nil {
+			return nil, err
+		}
+		facilities = append(facilities, facility)
+	}
+	return facilities, nil
 }
