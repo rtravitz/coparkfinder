@@ -1,8 +1,10 @@
 hash: 6371e41bd6f44b882d4c8cc32f4000d3e541ddcb9ed4947f53bb44ef5c3343d9
-updated: 2017-01-04T18:40:32.92053053-07:00
+updated: 2017-01-05T14:43:07.553236773-07:00
 imports:
 - name: github.com/gorilla/context
   version: 08b5f424b9271eedf6f9f0ce86cb9396ed337a42
+- name: github.com/gorilla/handlers
+  version: 3a5767ca75ece5f7f1440b1d16975247f8d8b221
 - name: github.com/gorilla/mux
   version: 757bef944d0f21880861c2dd9c871ca543023cba
 - name: github.com/lib/pq

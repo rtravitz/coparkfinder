@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 )
 
 //Name of the parks table and associated columns in the database
@@ -74,4 +75,93 @@ func (tx *Tx) FindPark(where string, params ...interface{}) (*Park, error) {
 		return nil, err
 	}
 	return park, nil
+}
+
+func (tx *Tx) FindParks(params map[string][]string) ([]*Park, error) {
+	rows, err := tx.Query(queryDecision(params))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	parks := make([]*Park, 0)
+	for rows.Next() {
+		park := new(Park)
+		err := rows.Scan(&park.ID, &park.Name, &park.Street, &park.City,
+			&park.Zip, &park.Email, &park.Description, &park.URL)
+		if err != nil {
+			return nil, err
+		}
+		parks = append(parks, park)
+	}
+	return parks, nil
+}
+
+func queryDecision(params map[string][]string) string {
+	var facList, actList string
+	var facLen, actLen int
+	var facOK bool
+
+	if facilities, ok := params["facilities"]; ok {
+		facOK = ok
+		facList = facilities[0]
+		facLen = len(strings.Split(facList, ","))
+	}
+	if activities, ok := params["activities"]; ok {
+		actList = activities[0]
+		actLen = len(strings.Split(actList, ","))
+	}
+
+	if len(params) == 2 {
+		return allParamsQuery(facList, actList, facLen, actLen)
+	}
+	if facOK {
+		return facilitiesQuery(facList, facLen)
+	} else {
+		return activitiesQuery(actList, actLen)
+	}
+}
+
+func allParamsQuery(facs string, acts string, facLen int, actLen int) (query string) {
+	query = fmt.Sprintf(
+		`SELECT * FROM parks WHERE parks.id =
+			 (SELECT fac.id FROM
+					(SELECT parks.id AS id FROM parks
+						JOIN parks_facilities ON parks.id = parks_facilities.park_id
+						JOIN facilities ON parks_facilities.facility_id = facilities.id
+						WHERE facilities.type IN (%s)
+						GROUP BY parks.id
+						HAVING COUNT(*) = %d) AS fac,
+					(SELECT parks.id AS id FROM parks
+						JOIN parks_activities ON parks.id = parks_activities.park_id
+						JOIN activities ON parks_activities.activity_id = activities.id
+						WHERE activities.type IN (%s)
+						GROUP BY parks.id
+						HAVING COUNT(*) = %d) as act
+				WHERE fac.id = act.id);`,
+		facs, facLen, acts, actLen)
+	return
+}
+
+func activitiesQuery(acts string, actLen int) (query string) {
+	query = fmt.Sprintf(
+		`SELECT parks.* from parks
+		JOIN parks_activities ON parks.id = parks_activities.park_id
+		JOIN activities ON parks_activities.activity_id = activities.id
+		WHERE activities.type IN (%s)
+		GROUP BY parks.id
+		HAVING COUNT(*) = %d;`,
+		acts, actLen)
+	return
+}
+
+func facilitiesQuery(facs string, facLen int) (query string) {
+	query = fmt.Sprintf(
+		`SELECT parks.* from parks
+		JOIN parks_facilities ON parks.id = parks_facilities.park_id
+		JOIN facilities ON parks_facilities.facility_id = facilities.id
+		WHERE facilities.type IN (%s)
+		GROUP BY parks.id
+		HAVING COUNT(*) = %d;`,
+		facs, facLen)
+	return
 }

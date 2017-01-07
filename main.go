@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/gorilla/mux"
 	"github.com/rtravitz/coparkfinder/handlers"
 	"github.com/rtravitz/coparkfinder/models"
 )
@@ -19,10 +18,9 @@ func main() {
 	err = db.Ping()
 	checkErr(err)
 	seedIfEmpty(db)
+	h := handler.NewHandler(db)
+	r := h.NewRouter()
 
-	r := mux.NewRouter()
-	r.HandleFunc("/api/v1/parks", handlers.ParksIndex(db)).
-		Methods("GET")
 	log.Fatal(http.ListenAndServe(":"+port, r))
 }
 
