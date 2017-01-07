@@ -25,7 +25,16 @@ func (tx *Tx) InsertActivity(activity Activity) (sql.Result, error) {
 	)
 }
 
-//Finds and returns a single Activity matching the params from the database
+//AllActivities finds and returns all Activities from the database
+func (tx *Tx) AllActivities() ([]*Activity, error) {
+	rows, err := tx.Query("SELECT * FROM activities")
+	if err != nil {
+		return nil, err
+	}
+	return generateActivities(rows)
+}
+
+//FindActivity finds and returns a single Activity matching the params from the database
 func (tx *Tx) FindActivity(where string, params ...interface{}) (*Activity, error) {
 	activity := new(Activity)
 	row := tx.QueryRow(fmt.Sprintf("SELECT * FROM activities WHERE %s", where), params...)
@@ -36,6 +45,7 @@ func (tx *Tx) FindActivity(where string, params ...interface{}) (*Activity, erro
 	return activity, nil
 }
 
+//FindParkActivities returns a slice of all activities associated with a park
 func (park *Park) FindParkActivities(db *DB) ([]*Activity, error) {
 	query := fmt.Sprintf(`SELECT activities.* FROM activities
 		JOIN parks_activities ON activities.id = parks_activities.activity_id

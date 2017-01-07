@@ -25,7 +25,16 @@ func (tx *Tx) InsertFacility(facility Facility) (sql.Result, error) {
 	)
 }
 
-//Finds and returns a single Facility matching the params from the database
+//AllFacilities finds and returns all Activities from the database
+func (tx *Tx) AllFacilities() ([]*Facility, error) {
+	rows, err := tx.Query("SELECT * FROM facilities")
+	if err != nil {
+		return nil, err
+	}
+	return generateFacilities(rows)
+}
+
+//FindFacility finds and returns a single Facility matching the params from the database
 func (tx *Tx) FindFacility(where string, params ...interface{}) (*Facility, error) {
 	facility := new(Facility)
 	row := tx.QueryRow(fmt.Sprintf("SELECT * FROM facilities WHERE %s", where), params...)
