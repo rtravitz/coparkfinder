@@ -54,7 +54,7 @@ func (tx *Tx) AllParks() ([]*Park, error) {
 	if err != nil {
 		return nil, err
 	}
-	return generateParks(rows, tx)
+	return generateParks(rows)
 }
 
 func (tx *Tx) FindPark(where string, params ...interface{}) (*Park, error) {
@@ -73,7 +73,7 @@ func (tx *Tx) FindParks(params map[string][]string) ([]*Park, error) {
 	if err != nil {
 		return nil, err
 	}
-	return generateParks(rows, tx)
+	return generateParks(rows)
 }
 
 func queryDecision(params map[string][]string) string {
@@ -101,7 +101,7 @@ func queryDecision(params map[string][]string) string {
 	}
 }
 
-func generateParks(rows *sql.Rows, tx *Tx) ([]*Park, error) {
+func generateParks(rows *sql.Rows) ([]*Park, error) {
 	defer rows.Close()
 	parks := make([]*Park, 0)
 	for rows.Next() {
