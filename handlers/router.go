@@ -25,6 +25,8 @@ func (h *Handler) NewRouter() http.Handler {
 		Methods("GET")
 	r.HandleFunc("/api/v1/facilities", h.FacilitiesIndex).
 		Methods("GET")
+	r.HandleFunc("/api/v1/park", h.ParkShow).
+		Methods("GET")
 
 	handler := handlers.HTTPMethodOverrideHandler(r)
 	o := handlers.AllowedOrigins([]string{"*"})
