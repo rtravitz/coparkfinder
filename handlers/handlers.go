@@ -54,6 +54,25 @@ func (h *Handler) ParksIndex(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (h *Handler) ParkShow(w http.ResponseWriter, r *http.Request) {
+	var park *models.Park
+	var err error
+	params := r.URL.Query()
+	if name, ok := params["name"]; ok {
+		tx, err := h.DB.Begin()
+		park, err = tx.FindPark("name = $1", name[0])
+		tx.Commit()
+		checkErr(err)
+	}
+	park.Facilities, err = park.FindParkFacilities(h.DB)
+	park.Activities, err = park.FindParkActivities(h.DB)
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	if err = json.NewEncoder(w).Encode(&park); err != nil {
+		panic(err)
+	}
+}
+
 func checkErr(err error) {
 	if err != nil {
 		panic(err)
