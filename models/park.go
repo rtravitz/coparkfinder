@@ -118,7 +118,7 @@ func generateParks(rows *sql.Rows) ([]*Park, error) {
 
 func allParamsQuery(facs string, acts string, facLen int, actLen int) (query string) {
 	query = fmt.Sprintf(
-		`SELECT * FROM parks WHERE parks.id =
+		`SELECT * FROM parks WHERE parks.id IN
 			 (SELECT fac.id FROM
 					(SELECT parks.id AS id FROM parks
 						JOIN parks_facilities ON parks.id = parks_facilities.park_id
