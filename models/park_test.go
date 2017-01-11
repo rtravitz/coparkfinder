@@ -86,7 +86,34 @@ func TestFindParkFacilities(t *testing.T) {
 }
 
 func TestFindParks(t *testing.T) {
+	buildDB()
+	defer teardownDB()
+	facQuery := map[string][]string{"activities": {"'fishing'"}}
+	actQuery := map[string][]string{"facilities": {"'boathouse'"}}
+	bothQuery := map[string][]string{"activities": {"'fishing'"}, "facilities": {"'boathouse'"}}
+	parkIds, err := insertTestParks(3)
+	activityId, err := insertTestActivities()
+	facilityId, err := insertTestFacilities()
+	tx, err := tdb.Begin()
+	_, err = tx.InsertParkFacility(ParkFacility{ParkID: parkIds[0], FacilityID: facilityId[0]})
+	checkErr(err)
+	_, err = tx.InsertParkFacility(ParkFacility{ParkID: parkIds[1], FacilityID: facilityId[0]})
+	checkErr(err)
+	_, err = tx.InsertParkActivity(ParkActivity{ParkID: parkIds[1], ActivityID: activityId[0]})
+	checkErr(err)
+	_, err = tx.InsertParkActivity(ParkActivity{ParkID: parkIds[2], ActivityID: activityId[0]})
+	checkErr(err)
+	facResult, err := tx.FindParks(facQuery)
+	ok(t, err)
+	actResult, err := tx.FindParks(actQuery)
+	ok(t, err)
+	bothResult, err := tx.FindParks(bothQuery)
+	ok(t, err)
+	tx.Commit()
 
+	equals(t, 2, len(facResult))
+	equals(t, 2, len(actResult))
+	equals(t, 1, len(bothResult))
 }
 
 func newTestPark() Park {
