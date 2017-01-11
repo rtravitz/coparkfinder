@@ -6,10 +6,10 @@ import (
 )
 
 func TestInsertParkActivity(t *testing.T) {
+	buildDB()
+	defer teardownDB()
 	tx, err := tdb.Begin()
 	parkActivity := newParkActivity()
-	defer tearDown("parks_activities", "park_id = $1 AND activity_id = $2",
-		parkActivity.ParkID, parkActivity.ActivityID)
 	_, err = tx.InsertParkActivity(parkActivity)
 	ok(t, err)
 	tx.Commit()

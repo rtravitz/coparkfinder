@@ -21,6 +21,20 @@ func init() {
 	}
 }
 
+func buildDB() {
+	tdb.Exec(`CREATE TABLE parks ( id serial, name varchar(255),
+	street varchar(255), city varchar(255), zip varchar(255),
+	email varchar(255), description text, url text, PRIMARY KEY(id))`)
+	tdb.Exec("CREATE TABLE facilities ( id serial, type varchar(255), PRIMARY KEY(id))")
+	tdb.Exec("CREATE Table parks_facilities ( id serial, park_id integer, facility_id integer, PRIMARY KEY(id))")
+	tdb.Exec("CREATE TABLE activities ( id serial, type varchar(255), PRIMARY KEY(id))")
+	tdb.Exec("CREATE Table parks_activities ( id serial, park_id integer, activity_id integer, PRIMARY KEY(id))")
+}
+
+func teardownDB() {
+	tdb.Exec("DROP TABLE IF EXISTS parks, facilities, parks_facilities, activities, parks_activities")
+}
+
 func checkErr(err error) {
 	if err != nil {
 		panic(err)
