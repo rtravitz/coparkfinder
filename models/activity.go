@@ -45,19 +45,6 @@ func (tx *Tx) FindActivity(where string, params ...interface{}) (*Activity, erro
 	return activity, nil
 }
 
-//FindParkActivities returns a slice of all activities associated with a park
-func (park *Park) FindParkActivities(db *DB) ([]*Activity, error) {
-	query := fmt.Sprintf(`SELECT activities.* FROM activities
-		JOIN parks_activities ON activities.id = parks_activities.activity_id
-		JOIN parks ON parks_activities.park_id = parks.id
-		WHERE parks.id = %d`, park.ID)
-	rows, err := db.Query(query)
-	if err != nil {
-		return nil, err
-	}
-	return generateActivities(rows)
-}
-
 func generateActivities(rows *sql.Rows) ([]*Activity, error) {
 	defer rows.Close()
 	activities := make([]*Activity, 0)

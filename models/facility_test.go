@@ -6,9 +6,10 @@ import (
 )
 
 func TestInsertFacility(t *testing.T) {
+	buildDB()
+	defer teardownDB()
 	tx, err := tdb.Begin()
 	facility := newTestFacility()
-	defer tearDown("facilities", "type = $1", facility.Type)
 	_, err = tx.InsertFacility(facility)
 	ok(t, err)
 	tx.Commit()
@@ -23,15 +24,30 @@ func TestInsertFacility(t *testing.T) {
 }
 
 func TestFindFacility(t *testing.T) {
-	ids, err := insertTestFacilities()
+	buildDB()
+	defer teardownDB()
+	_, err := insertTestFacilities()
 	checkErr(err)
-	defer tearDown("facilities", "id IN ($1, $2)", ids[0], ids[1])
 	tx, err := tdb.Begin()
 	facility, err := tx.FindFacility("type = $1", "boathouse")
 	tx.Commit()
 	ok(t, err)
 
 	equals(t, "boathouse", facility.Type)
+}
+
+func TestAllFacilities(t *testing.T) {
+	buildDB()
+	defer teardownDB()
+	_, err := insertTestFacilities()
+	checkErr(err)
+	tx, err := tdb.Begin()
+	facilities, err := tx.AllFacilities()
+	tx.Commit()
+	ok(t, err)
+
+	equals(t, "boathouse", facilities[0].Type)
+	equals(t, "picnic shelter", facilities[1].Type)
 }
 
 func newTestFacility() Facility {

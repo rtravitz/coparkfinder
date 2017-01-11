@@ -6,9 +6,10 @@ import (
 )
 
 func TestInsertActivity(t *testing.T) {
+	buildDB()
+	defer teardownDB()
 	tx, err := tdb.Begin()
 	activity := newTestActivity()
-	defer tearDown("activities", "type = $1", activity.Type)
 	_, err = tx.InsertActivity(activity)
 	tx.Commit()
 	ok(t, err)
@@ -22,15 +23,30 @@ func TestInsertActivity(t *testing.T) {
 }
 
 func TestFindActivity(t *testing.T) {
-	ids, err := insertTestActivities()
+	buildDB()
+	defer teardownDB()
+	_, err := insertTestActivities()
 	checkErr(err)
-	defer tearDown("activities", "id IN ($1, $2)", ids[0], ids[1])
 	tx, err := tdb.Begin()
 	activity, err := tx.FindActivity("type = $1", "fishing")
 	tx.Commit()
 	ok(t, err)
 
 	equals(t, "fishing", activity.Type)
+}
+
+func TestAllActivities(t *testing.T) {
+	buildDB()
+	defer teardownDB()
+	_, err := insertTestActivities()
+	checkErr(err)
+	tx, err := tdb.Begin()
+	activities, err := tx.AllActivities()
+	tx.Commit()
+	ok(t, err)
+
+	equals(t, "fishing", activities[0].Type)
+	equals(t, "hiking", activities[1].Type)
 }
 
 func newTestActivity() Activity {
