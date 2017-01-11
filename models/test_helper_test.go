@@ -41,31 +41,6 @@ func checkErr(err error) {
 	}
 }
 
-func insertTestParks() (teardownIDs []int, err error) {
-	tx, err := tdb.Begin()
-	park1 := newTestPark()
-	park2 := newTestPark()
-	parkList := []Park{park1, park2}
-	for _, park := range parkList {
-		_, err = tx.InsertPark(park)
-	}
-	tx.Commit()
-	rows, err := tdb.Query("SELECT id FROM parks")
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var id int
-		err = rows.Scan(&id)
-		if err != nil {
-			return nil, err
-		}
-		teardownIDs = append(teardownIDs, id)
-	}
-	return teardownIDs, nil
-}
-
 func tearDown(table, where string, params ...interface{}) {
 	_, err := tdb.Exec(
 		fmt.Sprintf("DELETE FROM %s WHERE %s", table, where),
