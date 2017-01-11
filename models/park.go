@@ -91,6 +91,19 @@ func (park *Park) FindParkActivities(db *DB) ([]*Activity, error) {
 	return generateActivities(rows)
 }
 
+//Finds all facilities based on a Park ID
+func (park *Park) FindParkFacilities(db *DB) ([]*Facility, error) {
+	query := fmt.Sprintf(`SELECT facilities.* FROM facilities
+		JOIN parks_facilities ON facilities.id = parks_facilities.facility_id
+		JOIN parks ON parks_facilities.park_id = parks.id
+		WHERE parks.id = %d`, park.ID)
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	return generateFacilities(rows)
+}
+
 func queryDecision(params map[string][]string) string {
 	var facList, actList string
 	var facLen, actLen int
