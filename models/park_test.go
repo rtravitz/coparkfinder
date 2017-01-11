@@ -52,7 +52,7 @@ func TestFindParkActivities(t *testing.T) {
 	activityIds, err := insertTestActivities()
 	testParkActivity := ParkActivity{ParkID: parkIds[0], ActivityID: activityIds[0]}
 	defer tearDown("parks", "id IN ($1, $2)", parkIds[0], parkIds[1])
-	defer tearDown("activities", "id IN ($1, $2)", activityIds[0], parkIds[1])
+	defer tearDown("activities", "id IN ($1, $2)", activityIds[0], activityIds[1])
 	defer tearDown("parks_activities", "park_id = $1", parkIds[0])
 	tx, err := tdb.Begin()
 	_, err = tx.InsertParkActivity(testParkActivity)
@@ -62,7 +62,25 @@ func TestFindParkActivities(t *testing.T) {
 	ok(t, err)
 
 	equals(t, 1, len(activities))
-	equals(t, "hiking", activities[0].Type)
+	equals(t, "fishing", activities[0].Type)
+}
+
+func TestFindParkFacilities(t *testing.T) {
+	parkIds, err := insertTestParks()
+	facilityIds, err := insertTestFacilities()
+	testParkFacility := ParkFacility{ParkID: parkIds[0], FacilityID: facilityIds[0]}
+	defer tearDown("parks", "id IN ($1, $2)", parkIds[0], parkIds[1])
+	defer tearDown("facilities", "id IN ($1, $2)", facilityIds[0], facilityIds[1])
+	defer tearDown("parks_facilities", "park_id = $1", parkIds[0])
+	tx, err := tdb.Begin()
+	_, err = tx.InsertParkFacility(testParkFacility)
+	tx.Commit()
+	testPark := Park{ID: parkIds[0]}
+	facilities, err := testPark.FindParkFacilities(tdb)
+	ok(t, err)
+
+	equals(t, 1, len(facilities))
+	equals(t, "boathouse", facilities[0].Type)
 }
 
 func newTestPark() Park {
