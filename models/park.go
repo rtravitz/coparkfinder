@@ -57,6 +57,7 @@ func (tx *Tx) AllParks() ([]*Park, error) {
 	return generateParks(rows)
 }
 
+//FindPark returns a single park matching the query params
 func (tx *Tx) FindPark(where string, params ...interface{}) (*Park, error) {
 	park := new(Park)
 	row := tx.QueryRow(fmt.Sprintf("SELECT * FROM parks WHERE %s", where), params...)
@@ -68,12 +69,26 @@ func (tx *Tx) FindPark(where string, params ...interface{}) (*Park, error) {
 	return park, nil
 }
 
+//FindParks returns a slice of parks matching the passed in query params
 func (tx *Tx) FindParks(params map[string][]string) ([]*Park, error) {
 	rows, err := tx.Query(queryDecision(params))
 	if err != nil {
 		return nil, err
 	}
 	return generateParks(rows)
+}
+
+//FindParkActivities returns a slice of all activities associated with a park
+func (park *Park) FindParkActivities(db *DB) ([]*Activity, error) {
+	query := fmt.Sprintf(`SELECT activities.* FROM activities
+		JOIN parks_activities ON activities.id = parks_activities.activity_id
+		JOIN parks ON parks_activities.park_id = parks.id
+		WHERE parks.id = %d`, park.ID)
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	return generateActivities(rows)
 }
 
 func queryDecision(params map[string][]string) string {

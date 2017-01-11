@@ -34,6 +34,19 @@ func TestFindFacility(t *testing.T) {
 	equals(t, "boathouse", facility.Type)
 }
 
+func TestAllFacilities(t *testing.T) {
+	ids, err := insertTestFacilities()
+	checkErr(err)
+	defer tearDown("facilities", "id IN ($1, $2)", ids[0], ids[1])
+	tx, err := tdb.Begin()
+	facilities, err := tx.AllFacilities()
+	tx.Commit()
+	ok(t, err)
+
+	equals(t, "boathouse", facilities[0].Type)
+	equals(t, "picnic shelter", facilities[1].Type)
+}
+
 func newTestFacility() Facility {
 	return Facility{Type: "boathouse"}
 }
