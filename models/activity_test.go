@@ -33,6 +33,19 @@ func TestFindActivity(t *testing.T) {
 	equals(t, "fishing", activity.Type)
 }
 
+func TestAllActivities(t *testing.T) {
+	ids, err := insertTestActivities()
+	checkErr(err)
+	defer tearDown("activities", "id IN ($1, $2)", ids[0], ids[1])
+	tx, err := tdb.Begin()
+	activities, err := tx.AllActivities()
+	tx.Commit()
+	ok(t, err)
+
+	equals(t, "fishing", activities[0].Type)
+	equals(t, "hiking", activities[1].Type)
+}
+
 func newTestActivity() Activity {
 	return Activity{Type: "fishing"}
 }
