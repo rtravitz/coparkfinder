@@ -39,7 +39,7 @@ func Seed(db *DB) {
 
 	tx, _ = db.Begin()
 	for _, park := range parks {
-		dbPark, err := tx.FindPark("name = $1", park.Name)
+		dbPark, err := db.FindPark("name = $1", park.Name)
 		checkErr(err)
 		for _, facility := range park.facilityList {
 			dbFacility, err := tx.FindFacility("type = $1", facility)

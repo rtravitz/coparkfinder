@@ -26,8 +26,8 @@ func (tx *Tx) InsertActivity(activity Activity) (sql.Result, error) {
 }
 
 //AllActivities finds and returns all Activities from the database
-func (tx *Tx) AllActivities() ([]*Activity, error) {
-	rows, err := tx.Query("SELECT * FROM activities ORDER BY type")
+func (db *DB) AllActivities() ([]*Activity, error) {
+	rows, err := db.Query("SELECT * FROM activities ORDER BY type")
 	if err != nil {
 		return nil, err
 	}

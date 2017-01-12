@@ -26,8 +26,8 @@ func (tx *Tx) InsertFacility(facility Facility) (sql.Result, error) {
 }
 
 //AllFacilities finds and returns all Activities from the database
-func (tx *Tx) AllFacilities() ([]*Facility, error) {
-	rows, err := tx.Query("SELECT * FROM facilities ORDER BY type")
+func (db *DB) AllFacilities() ([]*Facility, error) {
+	rows, err := db.Query("SELECT * FROM facilities ORDER BY type")
 	if err != nil {
 		return nil, err
 	}
