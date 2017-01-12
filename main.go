@@ -18,9 +18,9 @@ func main() {
 	err = db.Ping()
 	checkErr(err)
 	seedIfEmpty(db)
-	h := handler.NewHandler(db)
-	r := h.NewRouter()
 
+	env := &handler.Env{db}
+	r := env.NewRouter()
 	log.Fatal(http.ListenAndServe(":"+port, r))
 }
 

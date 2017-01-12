@@ -7,25 +7,19 @@ import (
 	"net/http"
 )
 
-type Handler struct {
-	DB *models.DB
+type Env struct {
+	DB models.Datastore
 }
 
-func NewHandler(db *models.DB) *Handler {
-	return &Handler{
-		DB: db,
-	}
-}
-
-func (h *Handler) NewRouter() http.Handler {
+func (env *Env) NewRouter() http.Handler {
 	r := mux.NewRouter()
-	r.HandleFunc("/api/v1/parks", h.ParksIndex).
+	r.HandleFunc("/api/v1/parks", env.ParksIndex).
 		Methods("GET")
-	r.HandleFunc("/api/v1/activities", h.ActivitiesIndex).
+	r.HandleFunc("/api/v1/activities", env.ActivitiesIndex).
 		Methods("GET")
-	r.HandleFunc("/api/v1/facilities", h.FacilitiesIndex).
+	r.HandleFunc("/api/v1/facilities", env.FacilitiesIndex).
 		Methods("GET")
-	r.HandleFunc("/api/v1/park", h.ParkShow).
+	r.HandleFunc("/api/v1/park", env.ParkShow).
 		Methods("GET")
 
 	handler := handlers.HTTPMethodOverrideHandler(r)
