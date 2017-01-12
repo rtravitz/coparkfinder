@@ -78,10 +78,63 @@ func TestParkShowHandler(t *testing.T) {
 	equals(t, park.Name, "Boyd Lake")
 }
 
+func TestAllParksHandler(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("GET", "/api/v1/parks", nil)
+	env := Env{DB: &mockDB{}}
+	router := env.NewRouter()
+	router.ServeHTTP(w, r)
+	response := w.Result()
+
+	if status := response.StatusCode; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	var parks []models.Park
+	err := json.NewDecoder(response.Body).Decode(&parks)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	equals(t, parks[0].Name, "Name1")
+	equals(t, parks[1].Name, "Name2")
+}
+
 type mockDB struct{}
 
 func (mdb *mockDB) AllParks() ([]*models.Park, error) {
-	return nil, nil
+	facilities := make([]*models.Facility, 0)
+	facilities = append(facilities, &models.Facility{1, "visitor center"})
+	activities := make([]*models.Activity, 0)
+	activities = append(activities, &models.Activity{1, "fishing"})
+	park1 := &models.Park{
+		ID:          1,
+		Name:        "Name1",
+		Street:      "Street1",
+		City:        "City1",
+		Zip:         "Zip1",
+		Email:       "Email1",
+		Description: "Description1",
+		URL:         "Url1",
+		Facilities:  facilities,
+		Activities:  activities,
+	}
+	park2 := &models.Park{
+		ID:          1,
+		Name:        "Name2",
+		Street:      "Street2",
+		City:        "City2",
+		Zip:         "Zip2",
+		Email:       "Email2",
+		Description: "Description2",
+		URL:         "Url2",
+		Facilities:  facilities,
+		Activities:  activities,
+	}
+	parks := make([]*models.Park, 0)
+	parks = append(parks, park1)
+	parks = append(parks, park2)
+	return parks, nil
 }
 
 func (mdb *mockDB) FindPark(where string, params ...interface{}) (*models.Park, error) {
@@ -98,21 +151,13 @@ func (mdb *mockDB) FindPark(where string, params ...interface{}) (*models.Park, 
 		Email:       "boyd.lake@state.co.us",
 		Description: "Colorful sailboats skimming blue water.",
 		URL:         "http://cpw.state.co.us/placestogo/parks/BoydLake",
-		Facilities:  []*models.Facility{&models.Facility{1, "visitor center"}},
+		Facilities:  facilities,
 		Activities:  activities,
 	}
 	return park, nil
 }
 
 func (mdb *mockDB) FindParks(params map[string][]string) ([]*models.Park, error) {
-	return nil, nil
-}
-
-func (mdb *mockDB) FindParkActivities(parkID int) ([]*models.Activity, error) {
-	return nil, nil
-}
-
-func (mdb *mockDB) FindParkFacilities(parkID int) ([]*models.Facility, error) {
 	return nil, nil
 }
 
@@ -128,6 +173,14 @@ func (mdb *mockDB) AllActivities() ([]*models.Activity, error) {
 	activities = append(activities, &models.Activity{1, "fishing"})
 	activities = append(activities, &models.Activity{2, "boating"})
 	return activities, nil
+}
+
+func (mdb *mockDB) FindParkActivities(parkID int) ([]*models.Activity, error) {
+	return nil, nil
+}
+
+func (mdb *mockDB) FindParkFacilities(parkID int) ([]*models.Facility, error) {
+	return nil, nil
 }
 
 func ok(tb testing.TB, err error) {
