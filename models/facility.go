@@ -18,8 +18,8 @@ type Facility struct {
 }
 
 //InsertFacility inserts a Facility into the database
-func (tx *Tx) InsertFacility(facility Facility) (sql.Result, error) {
-	return tx.Exec(
+func (db *DB) InsertFacility(facility Facility) (sql.Result, error) {
+	return db.Exec(
 		fmt.Sprintf("INSERT INTO %s(%s) VALUES($1)", FacilityTableName, FacilityTypeCol),
 		facility.Type,
 	)
@@ -35,9 +35,9 @@ func (db *DB) AllFacilities() ([]*Facility, error) {
 }
 
 //FindFacility finds and returns a single Facility matching the params from the database
-func (tx *Tx) FindFacility(where string, params ...interface{}) (*Facility, error) {
+func (db *DB) FindFacility(where string, params ...interface{}) (*Facility, error) {
 	facility := new(Facility)
-	row := tx.QueryRow(fmt.Sprintf("SELECT * FROM facilities WHERE %s", where), params...)
+	row := db.QueryRow(fmt.Sprintf("SELECT * FROM facilities WHERE %s", where), params...)
 	err := row.Scan(&facility.ID, &facility.Type)
 	if err != nil {
 		return nil, err

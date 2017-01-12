@@ -18,8 +18,8 @@ type Activity struct {
 }
 
 //InsertActivity inserts a Activity into the database
-func (tx *Tx) InsertActivity(activity Activity) (sql.Result, error) {
-	return tx.Exec(
+func (db *DB) InsertActivity(activity Activity) (sql.Result, error) {
+	return db.Exec(
 		fmt.Sprintf("INSERT INTO %s(%s) VALUES($1)", ActivityTableName, ActivityTypeCol),
 		activity.Type,
 	)
@@ -35,9 +35,9 @@ func (db *DB) AllActivities() ([]*Activity, error) {
 }
 
 //FindActivity finds and returns a single Activity matching the params from the database
-func (tx *Tx) FindActivity(where string, params ...interface{}) (*Activity, error) {
+func (db *DB) FindActivity(where string, params ...interface{}) (*Activity, error) {
 	activity := new(Activity)
-	row := tx.QueryRow(fmt.Sprintf("SELECT * FROM activities WHERE %s", where), params...)
+	row := db.QueryRow(fmt.Sprintf("SELECT * FROM activities WHERE %s", where), params...)
 	err := row.Scan(&activity.ID, &activity.Type)
 	if err != nil {
 		return nil, err

@@ -14,47 +14,39 @@ func Seed(db *DB) {
 	activities := compileActivitiesList(parks)
 
 	//insert parks
-	tx, _ := db.Begin()
 	for _, park := range parks {
-		_, err := tx.InsertPark(park)
+		_, err := db.InsertPark(park)
 		checkErr(err)
 	}
-	tx.Commit()
 
 	//insert facilities
-	tx, _ = db.Begin()
 	for _, facility := range facilities {
-		_, err := tx.InsertFacility(facility)
+		_, err := db.InsertFacility(facility)
 		checkErr(err)
 	}
-	tx.Commit()
 
 	//insert activities
-	tx, _ = db.Begin()
 	for _, activity := range activities {
-		_, err := tx.InsertActivity(activity)
+		_, err := db.InsertActivity(activity)
 		checkErr(err)
 	}
-	tx.Commit()
 
-	tx, _ = db.Begin()
 	for _, park := range parks {
 		dbPark, err := db.FindPark("name = $1", park.Name)
 		checkErr(err)
 		for _, facility := range park.facilityList {
-			dbFacility, err := tx.FindFacility("type = $1", facility)
+			dbFacility, err := db.FindFacility("type = $1", facility)
 			checkErr(err)
 			parkFacility := ParkFacility{ParkID: dbPark.ID, FacilityID: dbFacility.ID}
-			tx.InsertParkFacility(parkFacility)
+			db.InsertParkFacility(parkFacility)
 		}
 		for _, activity := range park.activityList {
-			dbActivity, err := tx.FindActivity("type = $1", activity)
+			dbActivity, err := db.FindActivity("type = $1", activity)
 			checkErr(err)
 			parkActivity := ParkActivity{ParkID: dbPark.ID, ActivityID: dbActivity.ID}
-			tx.InsertParkActivity(parkActivity)
+			db.InsertParkActivity(parkActivity)
 		}
 	}
-	tx.Commit()
 }
 
 func unmarshalCSV() []Park {

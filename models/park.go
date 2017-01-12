@@ -37,8 +37,8 @@ type Park struct {
 type Parks []Park
 
 //InsertPark inserts a Park into the database
-func (tx *Tx) InsertPark(park Park) (sql.Result, error) {
-	return tx.Exec(
+func (db *DB) InsertPark(park Park) (sql.Result, error) {
+	return db.Exec(
 		fmt.Sprintf("INSERT INTO %s(%s, %s, %s, %s, %s, %s, %s) VALUES($1, $2, $3, $4, $5, $6, $7)",
 			ParkTableName, ParkNameCol, ParkStreetCol,
 			ParkCityCol, ParkZipCol, ParkEmailCol,
