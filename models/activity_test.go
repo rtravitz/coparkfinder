@@ -8,10 +8,8 @@ import (
 func TestInsertActivity(t *testing.T) {
 	buildDB()
 	defer teardownDB()
-	tx, err := tdb.Begin()
 	activity := newTestActivity()
-	_, err = tx.InsertActivity(activity)
-	tx.Commit()
+	_, err := tdb.InsertActivity(activity)
 	ok(t, err)
 	row := tdb.QueryRow("SELECT type FROM activities WHERE type = $1", activity.Type)
 	var returnedType string
@@ -27,9 +25,7 @@ func TestFindActivity(t *testing.T) {
 	defer teardownDB()
 	_, err := insertTestActivities()
 	checkErr(err)
-	tx, err := tdb.Begin()
-	activity, err := tx.FindActivity("type = $1", "fishing")
-	tx.Commit()
+	activity, err := tdb.FindActivity("type = $1", "fishing")
 	ok(t, err)
 
 	equals(t, "fishing", activity.Type)
@@ -40,9 +36,7 @@ func TestAllActivities(t *testing.T) {
 	defer teardownDB()
 	_, err := insertTestActivities()
 	checkErr(err)
-	tx, err := tdb.Begin()
-	activities, err := tx.AllActivities()
-	tx.Commit()
+	activities, err := tdb.AllActivities()
 	ok(t, err)
 
 	equals(t, "fishing", activities[0].Type)
@@ -54,14 +48,12 @@ func newTestActivity() Activity {
 }
 
 func insertTestActivities() (teardownIDs []int, err error) {
-	tx, err := tdb.Begin()
 	activity1 := newTestActivity()
 	activity2 := Activity{Type: "hiking"}
 	activitiesList := []Activity{activity1, activity2}
 	for _, activity := range activitiesList {
-		_, err = tx.InsertActivity(activity)
+		_, err = tdb.InsertActivity(activity)
 	}
-	tx.Commit()
 	rows, err := tdb.Query("SELECT id FROM activities")
 	if err != nil {
 		return nil, err
