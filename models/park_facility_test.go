@@ -8,11 +8,9 @@ import (
 func TestInsertParkFacility(t *testing.T) {
 	buildDB()
 	defer teardownDB()
-	tx, err := tdb.Begin()
 	parkFacility := newParkFacility()
-	_, err = tx.InsertParkFacility(parkFacility)
+	_, err := tdb.InsertParkFacility(parkFacility)
 	ok(t, err)
-	tx.Commit()
 
 	row := tdb.QueryRow("SELECT park_id, facility_id FROM parks_facilities WHERE park_id = $1 AND facility_id = $2",
 		parkFacility.ParkID, parkFacility.FacilityID)

@@ -37,8 +37,8 @@ type Park struct {
 type Parks []Park
 
 //InsertPark inserts a Park into the database
-func (tx *Tx) InsertPark(park Park) (sql.Result, error) {
-	return tx.Exec(
+func (db *DB) InsertPark(park Park) (sql.Result, error) {
+	return db.Exec(
 		fmt.Sprintf("INSERT INTO %s(%s, %s, %s, %s, %s, %s, %s) VALUES($1, $2, $3, $4, $5, $6, $7)",
 			ParkTableName, ParkNameCol, ParkStreetCol,
 			ParkCityCol, ParkZipCol, ParkEmailCol,
@@ -49,8 +49,8 @@ func (tx *Tx) InsertPark(park Park) (sql.Result, error) {
 }
 
 //AllParks queries the database and returns a slice of Parks
-func (tx *Tx) AllParks() ([]*Park, error) {
-	rows, err := tx.Query("SELECT * FROM parks")
+func (db DB) AllParks() ([]*Park, error) {
+	rows, err := db.Query("SELECT * FROM parks")
 	if err != nil {
 		return nil, err
 	}
@@ -58,9 +58,9 @@ func (tx *Tx) AllParks() ([]*Park, error) {
 }
 
 //FindPark returns a single park matching the query params
-func (tx *Tx) FindPark(where string, params ...interface{}) (*Park, error) {
+func (db DB) FindPark(where string, params ...interface{}) (*Park, error) {
 	park := new(Park)
-	row := tx.QueryRow(fmt.Sprintf("SELECT * FROM parks WHERE %s", where), params...)
+	row := db.QueryRow(fmt.Sprintf("SELECT * FROM parks WHERE %s", where), params...)
 	err := row.Scan(&park.ID, &park.Name, &park.Street, &park.City,
 		&park.Zip, &park.Email, &park.Description, &park.URL)
 	if err != nil {
@@ -70,8 +70,8 @@ func (tx *Tx) FindPark(where string, params ...interface{}) (*Park, error) {
 }
 
 //FindParks returns a slice of parks matching the passed in query params
-func (tx *Tx) FindParks(params map[string][]string) ([]*Park, error) {
-	rows, err := tx.Query(queryDecision(params))
+func (db DB) FindParks(params map[string][]string) ([]*Park, error) {
+	rows, err := db.Query(queryDecision(params))
 	if err != nil {
 		return nil, err
 	}
@@ -79,11 +79,11 @@ func (tx *Tx) FindParks(params map[string][]string) ([]*Park, error) {
 }
 
 //FindParkActivities returns a slice of all activities associated with a park
-func (park *Park) FindParkActivities(db *DB) ([]*Activity, error) {
+func (db DB) FindParkActivities(parkID int) ([]*Activity, error) {
 	query := fmt.Sprintf(`SELECT activities.* FROM activities
 		JOIN parks_activities ON activities.id = parks_activities.activity_id
 		JOIN parks ON parks_activities.park_id = parks.id
-		WHERE parks.id = %d`, park.ID)
+		WHERE parks.id = %d`, parkID)
 	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err
@@ -92,11 +92,11 @@ func (park *Park) FindParkActivities(db *DB) ([]*Activity, error) {
 }
 
 //Finds all facilities based on a Park ID
-func (park *Park) FindParkFacilities(db *DB) ([]*Facility, error) {
+func (db DB) FindParkFacilities(parkID int) ([]*Facility, error) {
 	query := fmt.Sprintf(`SELECT facilities.* FROM facilities
 		JOIN parks_facilities ON facilities.id = parks_facilities.facility_id
 		JOIN parks ON parks_facilities.park_id = parks.id
-		WHERE parks.id = %d`, park.ID)
+		WHERE parks.id = %d`, parkID)
 	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err

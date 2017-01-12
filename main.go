@@ -18,9 +18,9 @@ func main() {
 	err = db.Ping()
 	checkErr(err)
 	seedIfEmpty(db)
-	h := handler.NewHandler(db)
-	r := h.NewRouter()
 
+	env := &handler.Env{db}
+	r := env.NewRouter()
 	log.Fatal(http.ListenAndServe(":"+port, r))
 }
 
@@ -31,10 +31,8 @@ func checkErr(err error) {
 }
 
 func seedIfEmpty(db *models.DB) {
-	tx, err := db.Begin()
-	parks, err := tx.AllParks()
+	parks, err := db.AllParks()
 	checkErr(err)
-	tx.Commit()
 	if len(parks) == 0 {
 		models.Seed(db)
 	}

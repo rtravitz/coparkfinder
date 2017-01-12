@@ -10,9 +10,14 @@ type DB struct {
 	*sql.DB
 }
 
-//Tx is a wrapper for *sql.Tx
-type Tx struct {
-	*sql.Tx
+type Datastore interface {
+	AllParks() ([]*Park, error)
+	FindPark(where string, params ...interface{}) (*Park, error)
+	FindParks(params map[string][]string) ([]*Park, error)
+	FindParkActivities(parkID int) ([]*Activity, error)
+	FindParkFacilities(parkID int) ([]*Facility, error)
+	AllFacilities() ([]*Facility, error)
+	AllActivities() ([]*Activity, error)
 }
 
 //OpenDB is a wrapper for sql.Open and returns a DB
@@ -22,13 +27,4 @@ func OpenDB(dataSourceName string) (*DB, error) {
 		return nil, err
 	}
 	return &DB{db}, nil
-}
-
-//Begin initiates a transaction
-func (db *DB) Begin() (*Tx, error) {
-	tx, err := db.DB.Begin()
-	if err != nil {
-		return nil, err
-	}
-	return &Tx{tx}, nil
 }

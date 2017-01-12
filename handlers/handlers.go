@@ -6,11 +6,9 @@ import (
 	"net/http"
 )
 
-func (h *Handler) ActivitiesIndex(w http.ResponseWriter, r *http.Request) {
+func (env *Env) ActivitiesIndex(w http.ResponseWriter, r *http.Request) {
 	var activities []*models.Activity
-	tx, err := h.DB.Begin()
-	activities, err = tx.AllActivities()
-	tx.Commit()
+	activities, err := env.DB.AllActivities()
 	checkErr(err)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -19,11 +17,9 @@ func (h *Handler) ActivitiesIndex(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler) FacilitiesIndex(w http.ResponseWriter, r *http.Request) {
+func (env *Env) FacilitiesIndex(w http.ResponseWriter, r *http.Request) {
 	var facilities []*models.Facility
-	tx, err := h.DB.Begin()
-	facilities, err = tx.AllFacilities()
-	tx.Commit()
+	facilities, err := env.DB.AllFacilities()
 	checkErr(err)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -32,20 +28,19 @@ func (h *Handler) FacilitiesIndex(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler) ParksIndex(w http.ResponseWriter, r *http.Request) {
+func (env *Env) ParksIndex(w http.ResponseWriter, r *http.Request) {
 	var parks []*models.Park
+	var err error
 	params := r.URL.Query()
-	tx, err := h.DB.Begin()
 	if len(params) > 0 {
-		parks, err = tx.FindParks(params)
+		parks, err = env.DB.FindParks(params)
 	} else {
-		parks, err = tx.AllParks()
+		parks, err = env.DB.AllParks()
 	}
-	tx.Commit()
 	checkErr(err)
 	for _, park := range parks {
-		park.Facilities, err = park.FindParkFacilities(h.DB)
-		park.Activities, err = park.FindParkActivities(h.DB)
+		park.Facilities, err = env.DB.FindParkFacilities(park.ID)
+		park.Activities, err = env.DB.FindParkActivities(park.ID)
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -54,18 +49,16 @@ func (h *Handler) ParksIndex(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler) ParkShow(w http.ResponseWriter, r *http.Request) {
+func (env *Env) ParkShow(w http.ResponseWriter, r *http.Request) {
 	var park *models.Park
 	var err error
 	params := r.URL.Query()
 	if name, ok := params["name"]; ok {
-		tx, err := h.DB.Begin()
-		park, err = tx.FindPark("name = $1", name[0])
-		tx.Commit()
+		park, err = env.DB.FindPark("name = $1", name[0])
 		checkErr(err)
 	}
-	park.Facilities, err = park.FindParkFacilities(h.DB)
-	park.Activities, err = park.FindParkActivities(h.DB)
+	park.Facilities, err = env.DB.FindParkFacilities(park.ID)
+	park.Activities, err = env.DB.FindParkActivities(park.ID)
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	if err = json.NewEncoder(w).Encode(&park); err != nil {

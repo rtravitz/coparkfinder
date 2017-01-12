@@ -9,11 +9,9 @@ import (
 func TestInsertPark(t *testing.T) {
 	buildDB()
 	defer teardownDB()
-	tx, err := tdb.Begin()
 	park := newTestPark()
-	_, err = tx.InsertPark(park)
+	_, err := tdb.InsertPark(park)
 	ok(t, err)
-	tx.Commit()
 
 	row := tdb.QueryRow("SELECT city FROM parks WHERE name = $1", park.Name)
 	var returnedCity string
@@ -29,9 +27,7 @@ func TestAllParks(t *testing.T) {
 	defer teardownDB()
 	_, err := insertTestParks(2)
 	checkErr(err)
-	tx, err := tdb.Begin()
-	parks, err := tx.AllParks()
-	tx.Commit()
+	parks, err := tdb.AllParks()
 	ok(t, err)
 
 	equals(t, "Name1", parks[1].Name)
@@ -43,9 +39,7 @@ func TestFindPark(t *testing.T) {
 	defer teardownDB()
 	_, err := insertTestParks(3)
 	checkErr(err)
-	tx, err := tdb.Begin()
-	park, err := tx.FindPark("name = $1", "Name1")
-	tx.Commit()
+	park, err := tdb.FindPark("name = $1", "Name1")
 	ok(t, err)
 
 	equals(t, "Name1", park.Name)
@@ -57,11 +51,9 @@ func TestFindParkActivities(t *testing.T) {
 	parkIds, err := insertTestParks(2)
 	activityIds, err := insertTestActivities()
 	testParkActivity := ParkActivity{ParkID: parkIds[0], ActivityID: activityIds[0]}
-	tx, err := tdb.Begin()
-	_, err = tx.InsertParkActivity(testParkActivity)
-	tx.Commit()
+	_, err = tdb.InsertParkActivity(testParkActivity)
 	testPark := Park{ID: parkIds[0]}
-	activities, err := testPark.FindParkActivities(tdb)
+	activities, err := tdb.FindParkActivities(testPark.ID)
 	ok(t, err)
 
 	equals(t, 1, len(activities))
@@ -74,11 +66,9 @@ func TestFindParkFacilities(t *testing.T) {
 	parkIds, err := insertTestParks(2)
 	facilityIds, err := insertTestFacilities()
 	testParkFacility := ParkFacility{ParkID: parkIds[0], FacilityID: facilityIds[0]}
-	tx, err := tdb.Begin()
-	_, err = tx.InsertParkFacility(testParkFacility)
-	tx.Commit()
+	_, err = tdb.InsertParkFacility(testParkFacility)
 	testPark := Park{ID: parkIds[0]}
-	facilities, err := testPark.FindParkFacilities(tdb)
+	facilities, err := tdb.FindParkFacilities(testPark.ID)
 	ok(t, err)
 
 	equals(t, 1, len(facilities))
@@ -94,22 +84,20 @@ func TestFindParks(t *testing.T) {
 	parkIds, err := insertTestParks(3)
 	activityId, err := insertTestActivities()
 	facilityId, err := insertTestFacilities()
-	tx, err := tdb.Begin()
-	_, err = tx.InsertParkFacility(ParkFacility{ParkID: parkIds[0], FacilityID: facilityId[0]})
+	_, err = tdb.InsertParkFacility(ParkFacility{ParkID: parkIds[0], FacilityID: facilityId[0]})
 	checkErr(err)
-	_, err = tx.InsertParkFacility(ParkFacility{ParkID: parkIds[1], FacilityID: facilityId[0]})
+	_, err = tdb.InsertParkFacility(ParkFacility{ParkID: parkIds[1], FacilityID: facilityId[0]})
 	checkErr(err)
-	_, err = tx.InsertParkActivity(ParkActivity{ParkID: parkIds[1], ActivityID: activityId[0]})
+	_, err = tdb.InsertParkActivity(ParkActivity{ParkID: parkIds[1], ActivityID: activityId[0]})
 	checkErr(err)
-	_, err = tx.InsertParkActivity(ParkActivity{ParkID: parkIds[2], ActivityID: activityId[0]})
+	_, err = tdb.InsertParkActivity(ParkActivity{ParkID: parkIds[2], ActivityID: activityId[0]})
 	checkErr(err)
-	facResult, err := tx.FindParks(facQuery)
+	facResult, err := tdb.FindParks(facQuery)
 	ok(t, err)
-	actResult, err := tx.FindParks(actQuery)
+	actResult, err := tdb.FindParks(actQuery)
 	ok(t, err)
-	bothResult, err := tx.FindParks(bothQuery)
+	bothResult, err := tdb.FindParks(bothQuery)
 	ok(t, err)
-	tx.Commit()
 
 	equals(t, 2, len(facResult))
 	equals(t, 2, len(actResult))
@@ -144,11 +132,9 @@ func insertTestParks(num int) (ids []int, err error) {
 		}
 		parks = append(parks, park)
 	}
-	tx, err := tdb.Begin()
 	for _, park := range parks {
-		_, err = tx.InsertPark(park)
+		_, err = tdb.InsertPark(park)
 	}
-	tx.Commit()
 	if err != nil {
 		return nil, err
 	}

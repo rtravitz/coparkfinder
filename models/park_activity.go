@@ -20,8 +20,8 @@ type ParkActivity struct {
 }
 
 //InsertParkActivity inserts a Facility into the database
-func (tx *Tx) InsertParkActivity(parkActivity ParkActivity) (sql.Result, error) {
-	return tx.Exec(
+func (db *DB) InsertParkActivity(parkActivity ParkActivity) (sql.Result, error) {
+	return db.Exec(
 		fmt.Sprintf("INSERT INTO %s(%s, %s) VALUES($1, $2)",
 			ParkActivityTableName, ParkActivityParkIDCol, ParkActivityActivityIDCol),
 		parkActivity.ParkID, parkActivity.ActivityID,
