@@ -31,8 +31,8 @@ func TestActivitiesIndexHandler(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	equals(t, activities[0].Type, "fishing")
-	equals(t, activities[1].Type, "boating")
+	equals(t, "fishing", activities[0].Type)
+	equals(t, "boating", activities[1].Type)
 }
 
 func TestFacilitiesIndexHandler(t *testing.T) {
@@ -53,8 +53,29 @@ func TestFacilitiesIndexHandler(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	equals(t, facilities[0].Type, "visitor center")
-	equals(t, facilities[1].Type, "campsites")
+	equals(t, "visitor center", facilities[0].Type)
+	equals(t, "campsites", facilities[1].Type)
+}
+
+func TestParkShowHandler(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("GET", "/api/v1/park?name=Crawford", nil)
+	env := Env{DB: &mockDB{}}
+	router := env.NewRouter()
+	router.ServeHTTP(w, r)
+	response := w.Result()
+
+	if status := response.StatusCode; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	var park models.Park
+	err := json.NewDecoder(response.Body).Decode(&park)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	equals(t, park.Name, "Boyd Lake")
 }
 
 type mockDB struct{}
@@ -64,7 +85,23 @@ func (mdb *mockDB) AllParks() ([]*models.Park, error) {
 }
 
 func (mdb *mockDB) FindPark(where string, params ...interface{}) (*models.Park, error) {
-	return nil, nil
+	facilities := make([]*models.Facility, 0)
+	facilities = append(facilities, &models.Facility{1, "visitor center"})
+	activities := make([]*models.Activity, 0)
+	activities = append(activities, &models.Activity{1, "fishing"})
+	park := &models.Park{
+		ID:          1,
+		Name:        "Boyd Lake",
+		Street:      "3720 North County Road",
+		City:        "Loveland",
+		Zip:         "80538",
+		Email:       "boyd.lake@state.co.us",
+		Description: "Colorful sailboats skimming blue water.",
+		URL:         "http://cpw.state.co.us/placestogo/parks/BoydLake",
+		Facilities:  []*models.Facility{&models.Facility{1, "visitor center"}},
+		Activities:  activities,
+	}
+	return park, nil
 }
 
 func (mdb *mockDB) FindParks(params map[string][]string) ([]*models.Park, error) {
