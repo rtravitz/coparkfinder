@@ -35,6 +35,28 @@ func TestActivitiesIndexHandler(t *testing.T) {
 	equals(t, activities[1].Type, "boating")
 }
 
+func TestFacilitiesIndexHandler(t *testing.T) {
+	w := httptest.NewRecorder()
+	r, _ := http.NewRequest("GET", "/api/v1/facilities", nil)
+	env := Env{DB: &mockDB{}}
+	router := env.NewRouter()
+	router.ServeHTTP(w, r)
+	response := w.Result()
+
+	if status := response.StatusCode; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	dec := json.NewDecoder(response.Body)
+	var facilities []models.Facility
+	err := dec.Decode(&facilities)
+	if err != nil {
+		log.Fatal(err)
+	}
+	equals(t, facilities[0].Type, "visitor center")
+	equals(t, facilities[1].Type, "campsites")
+}
+
 type mockDB struct{}
 
 func (mdb *mockDB) AllParks() ([]*models.Park, error) {
@@ -58,7 +80,10 @@ func (mdb *mockDB) FindParkFacilities(parkID int) ([]*models.Facility, error) {
 }
 
 func (mdb *mockDB) AllFacilities() ([]*models.Facility, error) {
-	return nil, nil
+	facilities := make([]*models.Facility, 0)
+	facilities = append(facilities, &models.Facility{1, "visitor center"})
+	facilities = append(facilities, &models.Facility{2, "campsites"})
+	return facilities, nil
 }
 
 func (mdb *mockDB) AllActivities() ([]*models.Activity, error) {
